@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.2.2">
+<eagle version="9.1.3">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -10880,6 +10880,10 @@ Source: AVX .. aphvc.pdf</description>
 <wire x1="147.32" y1="35.56" x2="129.54" y2="35.56" width="0.1524" layer="91"/>
 </segment>
 <segment>
+<label x="93.98" y="142.24" size="1.778" layer="95"/>
+<wire x1="93.98" y1="139.7" x2="93.98" y2="142.24" width="0.1524" layer="91"/>
+<pinref part="C1" gate="G$1" pin="1"/>
+<junction x="93.98" y="139.7"/>
 <pinref part="U$2" gate="G$1" pin="IN"/>
 <wire x1="129.54" y1="144.78" x2="137.16" y2="144.78" width="0.1524" layer="91"/>
 <label x="137.16" y="144.78" size="1.778" layer="95"/>
