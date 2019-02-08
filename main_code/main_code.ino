@@ -16,6 +16,7 @@ void setup() {
 
 void loop() {
   char* msg = new char[500]{0};
+  accelerometer->tick();
   sprintf(msg, "%d,%d,%d", accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2));
   storage->write(msg);
   Serial.println(msg);
