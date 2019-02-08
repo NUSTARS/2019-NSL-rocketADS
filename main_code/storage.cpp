@@ -2,14 +2,14 @@
 
 
 namespace nustars {
-    Storage::Storage(String x) {
+    Storage::Storage(char* x) {
         isInitialized = false;
-        fileName = new char[x.length()];
-        for (int i = 0; i < x.length(); i++) {
-            fileName[i] = x[i];
-        }
+        fileName = (char*)malloc(strlen(x) + 1);
+        strcpy(fileName, x);
         if (!SD.begin(BUILTIN_SDCARD)) {
             Serial.println("Card failed, or not present");
+            while (1) 
+              delay(10);
             return;
         }
         isInitialized = true;
@@ -20,7 +20,6 @@ namespace nustars {
         File dataFile = SD.open(fileName, FILE_WRITE); //
         if (dataFile) {
             dataFile.println(msg);
-            Serial.println("Made it ma!");
             dataFile.close();
         }
         else Serial.println("Didn't make it ma!");

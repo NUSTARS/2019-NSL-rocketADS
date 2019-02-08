@@ -4,7 +4,7 @@
 namespace nustars {
     class Storage {
     public:
-        Storage(String file);
+        Storage(char* file);
         void write(char* msg);
         int* read(int& lng);
 

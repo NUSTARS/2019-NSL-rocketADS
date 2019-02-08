@@ -9,12 +9,15 @@ Storage* storage = NULL;
 void setup() {
   accelerometer = new Accelerometer;
   altimeter = new Altimeter;
-  storage = new Storage("out");
+  storage = new Storage("out.csv");
   Serial.print("Hello");
   delay(1000);
 }
 
 void loop() {
-  storage->write("hello world");
-  delay(300);
+  char* msg = new char[500]{0};
+  sprintf(msg, "%d,%d,%d", accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2));
+  storage->write(msg);
+  Serial.println(msg);
+  delay(10);
 }
