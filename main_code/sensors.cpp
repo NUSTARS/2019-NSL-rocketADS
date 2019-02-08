@@ -40,6 +40,10 @@ namespace nustars {
         acc[2] = euler.z();
     }
 
+    void Accelerometer::reconnect() {
+      bno.begin();
+    }
+
     /**
      * Get the current orientation
      * @param axis From Sensor class, integer representing axis to retrieve

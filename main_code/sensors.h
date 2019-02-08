@@ -27,6 +27,7 @@ namespace nustars {
     public:
         Accelerometer();
         void tick() override;
+        void reconnect();
         float getOrientation(int axis);
         float getAcceleration(int axis);
         float getGyro(int axis);

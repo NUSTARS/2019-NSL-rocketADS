@@ -7,7 +7,7 @@ namespace nustars {
         Storage(char* file);
         void write(char* msg);
         int* read(int& lng);
-        void close();
+        void save();
 
     private:
         bool isInitialized;
