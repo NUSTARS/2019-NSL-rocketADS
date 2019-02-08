@@ -11,7 +11,9 @@ namespace nustars {
      */
     Accelerometer::Accelerometer() {
         bno = Adafruit_BNO055(55); //I2C address, probably.
-        orientation = new int[3];
+        orientation = new float[3];
+        gyro = new float[3];
+        acc = new float[3];
         if (!bno.begin()) {
             Serial.print(
                     "Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!"); //TODO: Learn to throw an exception
@@ -24,19 +26,18 @@ namespace nustars {
      * Update the orientation information
      */
     void Accelerometer::tick() {
-        float collect[3];
-        // The data will be very noisy, so we have to apply a moving average
-        const int NUM_SAMPLES = 5;
-        for (int i = 0; i < NUM_SAMPLES; i++) {
-            sensors_event_t event;
-            bno.getEvent(&event);
-            collect[0] += event.orientation.x;
-            collect[1] += event.orientation.y;
-            collect[2] += event.orientation.z;
-        }
-        orientation[0] = (int)(collect[0] / NUM_SAMPLES);
-        orientation[1] = (int)(collect[1] / NUM_SAMPLES);
-        orientation[2] = (int)(collect[2] / NUM_SAMPLES);
+        imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+        orientation[0] = euler.x();
+        orientation[1] = euler.y();
+        orientation[2] = euler.z();
+        euler = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+        gyro[0] = euler.x();
+        gyro[1] = euler.y();
+        gyro[2] = euler.z();
+        euler = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+        acc[0] = euler.x();
+        acc[1] = euler.y();
+        acc[2] = euler.z();
     }
 
     /**
@@ -44,13 +45,12 @@ namespace nustars {
      * @param axis From Sensor class, integer representing axis to retrieve
      * @return The value of the orientation on requested axis
      */
-    int Accelerometer::getOrientation(int axis) {
-        switch(axis) {
-            case 0: return orientation[0];
-            case 1: return orientation[1];
-            case 2: return orientation[2];
-            default: return -1; //TODO: Throw an exception
-        }
+    float Accelerometer::getOrientation(int axis) {
+        return orientation[axis];
+    }
+
+    float Accelerometer::getGyro(int axis) {
+        return gyro[axis];
     }
 
     /**
@@ -58,14 +58,8 @@ namespace nustars {
      * @param axis From Sensor class, integer representing axis to retrieve
      * @return The value of the acceleration on requested axis
      */
-    int Accelerometer::getAcceleration(int axis) {
-        imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-        switch(axis) {
-            case 0: return acc.x();
-            case 1: return acc.y();
-            case 2: return acc.z();
-            default: return -1; //TODO: Throw an exception
-        }
+    float Accelerometer::getAcceleration(int axis) {
+        return acc[axis];
     }
 
 
@@ -101,25 +95,25 @@ namespace nustars {
      * Update the current altitude, pressure, and temperature
      */
     void Altimeter::tick() {
-        temp = bme.readTemperature();
-        pressure = bme.readPressure();
-        alt = bme.readAltitude(1000) - baseAlt;
+        temp = bme.temperature;
+        pressure = bme.pressure;
+        alt = bme.readAltitude(SEALEVELPRESSURE_HPA);
     }
 
     //Altimeter getters
 
     //get temperature
-    int Altimeter::getTemp() {
+    float Altimeter::getTemp() {
         return temp;
     }
 
     //get altitude
-    int Altimeter::getAltitude() {
+    float Altimeter::getAltitude() {
         return alt;
     }
 
     //get pressure
-    int Altimeter::getPressure() {
+    float Altimeter::getPressure() {
         return pressure;
     }
 } //END NAMESPACE

@@ -7,9 +7,11 @@ namespace nustars {
         Storage(char* file);
         void write(char* msg);
         int* read(int& lng);
+        void close();
 
     private:
         bool isInitialized;
         char* fileName;
+        File dataFile;
     };
 }

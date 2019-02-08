@@ -4,6 +4,7 @@
 #endif
 #include <Adafruit_BMP3XX.h>
 
+#define SEALEVELPRESSURE_HPA (1013.25)
 
 namespace nustars {
     static const int X_AXIS = 0;
@@ -20,15 +21,15 @@ namespace nustars {
     class Accelerometer: public Sensor {
     private:
         Adafruit_BNO055 bno;
-        int lastX;
-        int modifierX;
-        int* orientation;
-        int baseAlt;
+        float* orientation;
+        float* acc;
+        float* gyro;
     public:
         Accelerometer();
         void tick() override;
-        int getOrientation(int axis);
-        int getAcceleration(int axis);
+        float getOrientation(int axis);
+        float getAcceleration(int axis);
+        float getGyro(int axis);
     };
 
     /**
@@ -37,14 +38,14 @@ namespace nustars {
     class Altimeter: public Sensor {
     private:
         Adafruit_BMP3XX bme;
-        int temp, pressure, alt, baseAlt;
+        float temp, pressure, alt, baseAlt;
         void setBaseAlt();
     public:
         Altimeter();
         void tick() override;
-        int getTemp();
-        int getPressure();
-        int getAltitude();
+        float getTemp();
+        float getPressure();
+        float getAltitude();
     };
 
 }
