@@ -17,8 +17,8 @@ bool errorFlag = false;
   uint8_t testBit = 0;
 
   byte value = 0;
-IntervalTimer timer;
-IntervalTimer saveTimer;
+//IntervalTimer timer;
+//IntervalTimer saveTimer;
 
 void setup() {
   pinMode(POWER_LED, OUTPUT);
@@ -43,11 +43,11 @@ void setup() {
     sprintf(msg, "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude");
     storage -> write(msg);
     digitalWrite(ERROR_LED, LOW);
-  timer.begin(realLoop, 20000);
-  saveTimer.begin(saveLoop, 2000000);
+  //timer.begin(realLoop, 20000);
+  //saveTimer.begin(saveLoop, 2000000);
 }
 
-void loop() {
+/*void loop() {
 
 
 
@@ -56,9 +56,9 @@ void loop() {
 
 void saveLoop() {
   storage->save();
-}
+}*/
 
-void realLoop() {
+void loop() {
   char* msg = new char[500] {0};
   accelerometer->tick();
   altimeter->tick();

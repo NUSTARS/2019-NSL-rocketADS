@@ -1,6 +1,6 @@
 #include "SD.h"
 #include <SPI.h>
-
+#include <vector>
 namespace nustars {
     class Storage {
     public:
@@ -13,5 +13,6 @@ namespace nustars {
         bool isInitialized;
         char* fileName;
         File dataFile;
+        vector<char *> buffer;
     };
 }

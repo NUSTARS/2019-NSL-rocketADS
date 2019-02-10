@@ -34,16 +34,20 @@ Storage::Storage(char* x) {
 
 bool Storage::write(char* msg) {
   //
-
-  if (dataFile) {
+  buffer.push_back(msg);
+  /*if (dataFile) {
     dataFile.println(msg);
     return true;
-  }
-  else return false;
+  }*/
+  //else return false;
+  return true;
 
 }
 
 void Storage::save() {
+  for (const auto & x : buffer) {
+    dataFile.println(x);
+  }
   dataFile.close();
   dataFile = SD.open(fileName, FILE_WRITE);
 }
