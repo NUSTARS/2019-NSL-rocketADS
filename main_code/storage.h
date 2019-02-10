@@ -5,15 +5,15 @@
 namespace nustars {
     class Storage {
     public:
-        Storage(std::string file);
-        bool write(std::string msg);
+        Storage(String file);
+        bool write(String msg);
         int* read(int& lng);
         void save();
 
     private:
         bool isInitialized;
-        std::string fileName;
+        String fileName;
         File dataFile;
-        std::vector<std::string > buffer;
+        std::vector<String > buffer;
     };
 }

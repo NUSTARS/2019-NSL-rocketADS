@@ -40,7 +40,7 @@ void setup() {
   storage = new Storage("out.csv");
   Serial.print("Hello");
   delay(1000);
-  std::string msg;
+  String msg;
   
     msg = "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude";
     storage -> write(msg);
@@ -63,7 +63,7 @@ void saveLoop() {
 
 void loop() {
   using namespace std;
-  std::string msg;
+  String msg;
   accelerometer->tick();
   altimeter->tick();
   
@@ -96,13 +96,13 @@ void loop() {
 
   
   Serial.println(testBit);
-  msg =  to_string(millis()) + ", ";
+  msg =  String(millis()) + ", ";
   for (const auto & x : accelerometer->getVals()) {
-    msg += to_string(x);
+    msg += String(x);
     msg+= ",";
   }
-  msg += to_string(alitimter->getPressure()) +  ",";
-  msg += to_string(altimiter -> getAltitude());
+  msg += String(alitimter->getPressure()) +  ",";
+  msg += String(altimiter -> getAltitude());
   
   // sprintf(msg, "%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
   //         accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),

@@ -31,7 +31,7 @@ Storage::Storage(char* x) {
 
 }
 
-bool Storage::write(std::string msg) {
+bool Storage::write(String msg) {
   //
   buffer.push_back(msg);
   /*if (dataFile) {
