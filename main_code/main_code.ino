@@ -96,26 +96,18 @@ void loop() {
 
   
   Serial.println(testBit);
-  msg =  millis();
-  for (int i = 0 ; i < 2; i++) {
-    msg += to_string(accelerometer->getOrientation(i));
-    msg+= ",";
-  }
-  for (int i = 0 ; i < 2; i++) {
-    msg += to_string(accelerometer->getAcceleration(i));
-    msg+= ",";
-  }
-  for (int i = 0 ; i < 2; i++) {
-    msg += to_string(accelerometer->getGyro(i));
+  msg =  to_string(millis()) + ", ";
+  for (const auto & x : accelerometer->getVals()) {
+    msg += to_string(x);
     msg+= ",";
   }
   msg += to_string(alitimter->getPressure()) +  ",";
   msg += to_string(altimiter -> getAltitude());
   
-  sprintf(msg, "%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
-          accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
-          accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
-          altimeter->getPressure(), altimeter->getAltitude());
+  // sprintf(msg, "%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
+  //         accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
+  //         accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
+  //         altimeter->getPressure(), altimeter->getAltitude());
   if(!storage->write(msg)) {
     errorFlag = true;
   }

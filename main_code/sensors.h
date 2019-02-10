@@ -3,7 +3,7 @@
 #include <Adafruit_BNO055.h>
 #endif
 #include <Adafruit_BMP3XX.h>
-
+#include <vector>
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 namespace nustars {
@@ -31,6 +31,7 @@ namespace nustars {
         float getOrientation(int axis);
         float getAcceleration(int axis);
         float getGyro(int axis);
+        std::vector<float> getVals();
     };
 
     /**
