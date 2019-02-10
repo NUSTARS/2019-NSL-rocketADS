@@ -101,8 +101,8 @@ void loop() {
     msg += String(x);
     msg+= ",";
   }
-  msg += String(alitimter->getPressure()) +  ",";
-  msg += String(altimiter -> getAltitude());
+  msg += String(altimeter->getPressure()) +  ",";
+  msg += String(altimeter -> getAltitude());
   
   // sprintf(msg, "%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
   //         accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
