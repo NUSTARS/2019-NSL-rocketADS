@@ -99,6 +99,7 @@ namespace nustars {
      * Update the current altitude, pressure, and temperature
      */
     void Altimeter::tick() {
+        bme.performReading();
         temp = bme.temperature;
         pressure = bme.pressure;
         alt = bme.readAltitude(SEALEVELPRESSURE_HPA);

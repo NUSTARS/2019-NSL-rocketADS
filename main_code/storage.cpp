@@ -32,13 +32,14 @@ Storage::Storage(char* x) {
 
 }
 
-void Storage::write(char* msg) {
+bool Storage::write(char* msg) {
   //
 
   if (dataFile) {
     dataFile.println(msg);
+    return true;
   }
-  else Serial.println("Didn't make it ma!");
+  else return false;
 
 }
 

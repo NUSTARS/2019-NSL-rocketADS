@@ -12,6 +12,7 @@ Accelerometer* accelerometer = NULL;
 Altimeter* altimeter = NULL;
 Storage* storage = NULL;
 int timerCounter = 0;
+bool errorFlag = false;
 
   uint8_t testBit = 0;
 
@@ -27,7 +28,8 @@ void setup() {
 
 
   digitalWrite(POWER_LED, HIGH);
-  Serial.begin(9600);
+  digitalWrite(ERROR_LED, HIGH);
+  Serial.begin(115200);
   Serial.println("Test");
 
 
@@ -40,6 +42,7 @@ void setup() {
   
     sprintf(msg, "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude");
     storage -> write(msg);
+    digitalWrite(ERROR_LED, LOW);
   timer.begin(realLoop, 20000);
   saveTimer.begin(saveLoop, 2000000);
 }
@@ -80,13 +83,11 @@ void realLoop() {
 
 
   if (testBit != BNO055_ID) {
-    digitalWrite(ERROR_LED, HIGH);
+    errorFlag = true;
     accelerometer->reconnect();
     storage->write("bno disconnected");
   }
-  else {
-    digitalWrite(ERROR_LED, LOW);
-  }
+
   
 
   
@@ -96,8 +97,18 @@ void realLoop() {
           accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
           accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
           altimeter->getPressure(), altimeter->getAltitude());
-  storage->write(msg);
+  if(!storage->write(msg)) {
+    errorFlag = true;
+  }
   Serial.println(msg);
   delete msg;
+
+  if (errorFlag) {
+    digitalWrite(ERROR_LED, HIGH);
+    errorFlag = false;
+  }
+  else {
+    digitalWrite(ERROR_LED, LOW);
+  }
 
 }

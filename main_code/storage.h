@@ -5,7 +5,7 @@ namespace nustars {
     class Storage {
     public:
         Storage(char* file);
-        void write(char* msg);
+        bool write(char* msg);
         int* read(int& lng);
         void save();
 
