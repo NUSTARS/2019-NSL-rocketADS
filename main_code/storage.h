@@ -1,18 +1,19 @@
 #include "SD.h"
 #include <SPI.h>
 #include <vector>
+#include <string>
 namespace nustars {
     class Storage {
     public:
-        Storage(char* file);
-        bool write(char* msg);
+        Storage(std::string file);
+        bool write(std::string msg);
         int* read(int& lng);
         void save();
 
     private:
         bool isInitialized;
-        char* fileName;
+        std::string fileName;
         File dataFile;
-        vector<char *> buffer;
+        std::vector<std::string > buffer;
     };
 }

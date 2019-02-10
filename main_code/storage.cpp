@@ -24,15 +24,14 @@ Storage::Storage(char* x) {
     outputString += ".csv";
     outputString.toCharArray(outputFile, 100);
   }
-  fileName = (char*) malloc(strlen(outputFile));
-  strcpy(fileName, outputFile);
+  fileName = outputString;
   isInitialized = true;
   Serial.println(isInitialized);
   dataFile = SD.open(fileName, FILE_WRITE);
 
 }
 
-bool Storage::write(char* msg) {
+bool Storage::write(std::string msg) {
   //
   buffer.push_back(msg);
   /*if (dataFile) {
