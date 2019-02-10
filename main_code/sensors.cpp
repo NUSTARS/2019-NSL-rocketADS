@@ -56,7 +56,7 @@ namespace nustars {
     float Accelerometer::getGyro(int axis) {
         return gyro[axis];
     }
-    std::vector<float> AccelerometerVals() {
+    std::vector<float> Accelerometer::getVals() {
         std::vector<float> res;
         for (int i = 0; i < 2; i++) {
             res.push_back(getOrientation(i));
