@@ -46,7 +46,7 @@ void setup() {
     storage -> write(msg);
     digitalWrite(ERROR_LED, LOW);
   //timer.begin(realLoop, 20000);
-  saveTimer.begin(saveLoop, 1000000);
+  saveTimer.begin(saveLoop, 15000000);
 }
 
 /*void loop() {
