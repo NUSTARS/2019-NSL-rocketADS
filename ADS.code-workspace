@@ -1,7 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "ADS_CODE"
+			"path": "ADS_CODE\\src\\ads"
+		},
+		{
+			"path": "datalogger"
 		}
 	]
 }
