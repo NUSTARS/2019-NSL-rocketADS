@@ -35,7 +35,7 @@ bool postApogee = false;
 
 
 
-Servo adsServo;
+Servo myservo;
 int servoPos = 0;
 
 void setup()
@@ -48,6 +48,7 @@ void setup()
     pinMode(STATUS_LED, OUTPUT);
     pinMode(ERROR_LED, OUTPUT);
     pinMode(BUILT_IN_LED, OUTPUT);
+    //pinMode(38, OUTPUT);
 
     //display that setup is beign enabled
     digitalWrite(ERROR_LED, HIGH);
@@ -56,7 +57,19 @@ void setup()
     //configure serial monitor
     Serial.begin(115200);
 
-    adsServo.attach(38);
+    myservo.attach(38);
+    myservo.write(0);
+
+   for(servoPos = 0; servoPos <= 180; servoPos += 2) // goes from 0 degrees to 180 degrees 
+  {                                  // in steps of 1 degree 
+    myservo.write(servoPos);              // tell servo to go to position in variable 'pos' 
+    delay(15);                       // waits 15ms for the servo to reach the position 
+  } 
+  for(servoPos = 180; servoPos>=0; servoPos-=2)     // goes from 180 degrees to 0 degrees 
+  {                                
+    myservo.write(servoPos);    
+    delay(15);// tell servo to go to position in variable 'pos' 
+  }
 
     accelerometer = new Accelerometer;
     altimeter = new Altimeter;
@@ -83,7 +96,7 @@ void setup()
 //todo: dont start save loop until flight start
 void loop()
 {
-	// Not really anything here
+
 }
 
 void saveLoop() {
@@ -91,7 +104,7 @@ void saveLoop() {
 }
 
 void processLoop() {
-    using namespace std;
+
     char* msg = new char[500] {0};
     accelerometer->tick();
     altimeter->tick();
@@ -122,7 +135,7 @@ void processLoop() {
     
 
     
-    Serial.println(testBit);
+    //Serial.println(testBit);
     
 sprintf(msg, "%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
           accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
@@ -132,9 +145,9 @@ altimeter->getPressure(), altimeter->getAltitude());
     //check for storage issue
     if(!storage->write(msg)) {
         errorFlag = true;
-        storage = new Storage("out.csv");
+        //storage = new Storage("out.csv");
     }
-    Serial.println(msg);
+    //Serial.println(msg);
 
 
     //set LED high if issue
@@ -146,7 +159,7 @@ altimeter->getPressure(), altimeter->getAltitude());
         digitalWrite(ERROR_LED, LOW);
     }
 
-    if (accelerometer->getAcceleration(3) < -2) {
+    if (accelerometer->getAcceleration(2) < -9) {
         inFlight = true;
         flightTimestamp = millis();
     }
@@ -157,11 +170,31 @@ altimeter->getPressure(), altimeter->getAltitude());
     }
 
     if (inFlight && postBurnout && !postApogee) {
-            servoPos = 180;
-    }
-    else servoPos = 0;
+            
+            if (servoPos < 180) {
+              servoPos = servoPos + 3;
+            }
+            
 
-    Serial.print(accelerometer -> getAcceleration(3));
+
+    }
+    else {
+
+      if (servoPos > 0) {
+        servoPos = servoPos - 3;
+      }
+ 
+
+    }
+
+    myservo.write(servoPos);
+
+    digitalWrite(STATUS_LED, inFlight);
+    digitalWrite(BUILT_IN_LED, postApogee);
+    Serial.print(millis());
+    Serial.print(" ");
+    Serial.print(accelerometer -> getAcceleration(2));
+    Serial.print(" ");
     Serial.println(servoPos);
 
     delete msg;
