@@ -1,6 +1,5 @@
 #include "sensors.h"
 #include "storage.h"
-#include <string>
 
 #define POWER_LED 8
 #define STATUS_LED 9
@@ -18,11 +17,10 @@ bool errorFlag = false;
   uint8_t testBit = 0;
 
   byte value = 0;
-//IntervalTimer timer;
+IntervalTimer timer;
 IntervalTimer saveTimer;
 
 void setup() {
-  Wire.setClock(400000L);
   pinMode(POWER_LED, OUTPUT);
   pinMode(STATUS_LED, OUTPUT);
   pinMode(ERROR_LED, OUTPUT);
@@ -31,7 +29,7 @@ void setup() {
 
   digitalWrite(POWER_LED, HIGH);
   digitalWrite(ERROR_LED, HIGH);
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("Test");
 
 
@@ -40,30 +38,28 @@ void setup() {
   storage = new Storage("out.csv");
   Serial.print("Hello");
   delay(1000);
-  String msg;
+  char* msg = new char[1000] {0};
   
-    msg = "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude";
+    sprintf(msg, "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude");
     storage -> write(msg);
     digitalWrite(ERROR_LED, LOW);
-  //timer.begin(realLoop, 20000);
-  saveTimer.begin(saveLoop, 15000000);
-}
-
-/*void loop() {
-
-
-
-
-}*/
-
-void saveLoop() {
-  digitalWrite(13, HIGH);
-  storage->save();
+  timer.begin(realLoop, 20000);
+  saveTimer.begin(saveLoop, 2000000);
 }
 
 void loop() {
-  using namespace std;
-  String msg;
+
+
+
+
+}
+
+void saveLoop() {
+  storage->save();
+}
+
+void realLoop() {
+  char* msg = new char[500] {0};
   accelerometer->tick();
   altimeter->tick();
   
@@ -96,22 +92,16 @@ void loop() {
 
   
   Serial.println(testBit);
-  msg =  String(millis()) + ", ";
-  for (const auto & x : accelerometer->getVals()) {
-    msg += String(x);
-    msg+= ",";
-  }
-  msg += String(altimeter->getPressure()) +  ",";
-  msg += String(altimeter -> getAltitude());
-  
-  // sprintf(msg, "%lu,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
-  //         accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
-  //         accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
-  //         altimeter->getPressure(), altimeter->getAltitude());
+
+  sprintf(msg, "%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
+          accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
+          accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
+          altimeter->getPressure(), altimeter->getAltitude());
   if(!storage->write(msg)) {
     errorFlag = true;
   }
   Serial.println(msg);
+  delete msg;
 
   if (errorFlag) {
     digitalWrite(ERROR_LED, HIGH);

@@ -2,7 +2,7 @@
 
 
 namespace nustars {
-Storage::Storage(char* x) {
+Storage::Storage(String x) {
   isInitialized = false;
   //fileName = (char*)malloc(strlen(x) + 1);
   //strcpy(fileName, x);
@@ -24,27 +24,30 @@ Storage::Storage(char* x) {
     outputString += ".csv";
     outputString.toCharArray(outputFile, 100);
   }
-  fileName = (char*) malloc(strlen(outputFile));
-  strcpy(fileName, outputFile);
+  fileName = outputString;
   isInitialized = true;
   Serial.println(isInitialized);
-  dataFile = SD.open(fileName, FILE_WRITE);
+  dataFile = SD.open(fileName.c_str(), FILE_WRITE);
 
 }
 
-bool Storage::write(char* msg) {
+bool Storage::write(String msg) {
   //
-
-  if (dataFile) {
+  buffer.push_back(msg);
+  /*if (dataFile) {
     dataFile.println(msg);
     return true;
-  }
-  else return false;
+  }*/
+  //else return false;
+  return true;
 
 }
 
 void Storage::save() {
+  for (const auto & x : buffer) {
+    dataFile.println(x.c_str());
+  }
   dataFile.close();
-  dataFile = SD.open(fileName, FILE_WRITE);
+  dataFile = SD.open(fileName.c_str(), FILE_WRITE);
 }
 }

@@ -1,13 +1,20 @@
-#include <pid.h>
-#include "Peripherals/sensors.h"
-#include "Peripherals/storage.h" 
+//#include <pid.h>
+#include "sensors.h"
+#include "storage.h" 
 #include <string>
+#include <Servo.h>
 
 
-#define STATUS_LED 9
-#define ERROR_LED 10
-#define MISC_LED 11
+
+#define STATUS_LED 10
+#define ERROR_LED 9
 #define BUILT_IN_LED 13
+#define MISC_LED 11
+
+#define BURNOUT_TIME 3500
+#define APOGEE_TIME  17000
+
+using namespace nustars;
 
 Accelerometer* accelerometer = NULL;
 Altimeter* altimeter = NULL;
@@ -26,6 +33,11 @@ uint32_t flightTimestamp = 0;
 bool postBurnout = false;
 bool postApogee = false;
 
+
+
+Servo adsServo;
+int servoPos = 0;
+
 void setup()
 {
     //increase speed of wire bus
@@ -38,24 +50,27 @@ void setup()
     pinMode(BUILT_IN_LED, OUTPUT);
 
     //display that setup is beign enabled
-    digitalWrite(MISC_LED, HIGH);
+    digitalWrite(ERROR_LED, HIGH);
 
     //TODO: change to enable serial only if serial monitor detected
     //configure serial monitor
     Serial.begin(115200);
 
+    adsServo.attach(38);
 
     accelerometer = new Accelerometer;
     altimeter = new Altimeter;
     storage = new Storage("out.csv");
-
-    String msg;
+    
+    char* msg = new char[500] {0};
     msg = "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude";
     storage -> write(msg);
 
     //turn of misc led to show enabling is done
-    digitalWrite(MISC_LED, LOW);
 
+
+
+        digitalWrite(ERROR_LED, LOW);
     //enable two interrupts for saving, data collecting and stuff
     timer.begin(processLoop, 20000);
     saveTimer.begin(saveLoop, 15000000);
@@ -76,7 +91,8 @@ void saveLoop() {
 }
 
 void processLoop() {
-    String msg;
+    using namespace std;
+    char* msg = new char[500] {0};
     accelerometer->tick();
     altimeter->tick();
     
@@ -92,7 +108,7 @@ void processLoop() {
 
         if (millis() - 1000 > timerCounter) {
         timerCounter = millis();
-        digitalWrite(STATUS_LED, !digitalRead(STATUS_LED));
+        digitalWrite(MISC_LED, !digitalRead(MISC_LED));
     }
 
 
@@ -107,18 +123,16 @@ void processLoop() {
 
     
     Serial.println(testBit);
-    msg =  String(millis()) + ", ";
-    for (const auto & x : accelerometer->getVals()) {
-        msg += String(x);
-        msg+= ",";
-    }
-    msg += String(altimeter->getPressure()) +  ",";
-    msg += String(altimeter -> getAltitude());
+    
+sprintf(msg, "%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
+          accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
+          accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
+altimeter->getPressure(), altimeter->getAltitude());
     
     //check for storage issue
     if(!storage->write(msg)) {
         errorFlag = true;
-        storage = new Storage("out.csv";)
+        storage = new Storage("out.csv");
     }
     Serial.println(msg);
 
@@ -132,18 +146,24 @@ void processLoop() {
         digitalWrite(ERROR_LED, LOW);
     }
 
-    if (accelerometer.getAcceleration(3) < -8) {
+    if (accelerometer->getAcceleration(3) < -2) {
         inFlight = true;
         flightTimestamp = millis();
     }
     
-    if (!postApogee && inFlight && millis-flightTimestamp > 3500) {
+    if (!postApogee && inFlight && millis()-flightTimestamp > BURNOUT_TIME) {
         postBurnout = true;
-        if (avgVerticalVelocity < 0) postApogee = true;
+        if (millis()-flightTimestamp > APOGEE_TIME) postApogee = true;
     }
 
     if (inFlight && postBurnout && !postApogee) {
-            //do the thing
+            servoPos = 180;
     }
+    else servoPos = 0;
+
+    Serial.print(accelerometer -> getAcceleration(3));
+    Serial.println(servoPos);
+
+    delete msg;
 
 }
