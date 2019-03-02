@@ -7770,7 +7770,7 @@ This footprint was designed to help hold the alignment of a through-hole compone
 <part name="R2" library="resistor" library_urn="urn:adsk.eagle:library:348" deviceset="R-US_" device="R0805" package3d_urn="urn:adsk.eagle:package:23553/2" value="10k"/>
 <part name="FRAME1" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="FRAME-A4L" device="">
 <attribute name="CNAME" value="NUSTARS Active Drag System"/>
-<attribute name="CREVISION" value="Version 1.0"/>
+<attribute name="CREVISION" value="Version 1.1"/>
 <attribute name="DESIGNER" value="Yichen Xu"/>
 </part>
 <part name="H1" library="holes" library_urn="urn:adsk.eagle:library:237" deviceset="MOUNT-HOLE" device="3.2" package3d_urn="urn:adsk.eagle:package:14275/1" value="MOUNT-HOLE3.2"/>

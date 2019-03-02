@@ -11833,7 +11833,7 @@ This footprint was designed to help hold the alignment of a through-hole compone
 <part name="LED3" library="led" library_urn="urn:adsk.eagle:library:259" deviceset="LED" device="SML0805" package3d_urn="urn:adsk.eagle:package:15830/1"/>
 <part name="FRAME1" library="SparkFun-Aesthetics" library_urn="urn:adsk.eagle:library:507" deviceset="FRAME-A4L" device="">
 <attribute name="CNAME" value="NUSTARS Active Drag System"/>
-<attribute name="CREVISION" value="Version 1.0"/>
+<attribute name="CREVISION" value="Version 1.1"/>
 <attribute name="DESIGNER" value="Yichen Xu"/>
 </part>
 <part name="SUPPLY1" library="SparkFun-PowerSymbols" library_urn="urn:adsk.eagle:library:530" deviceset="3.3V" device=""/>
