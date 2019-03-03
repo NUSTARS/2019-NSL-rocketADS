@@ -5,7 +5,6 @@
 #include <Servo.h>
 
 
-
 #define STATUS_LED 10
 #define ERROR_LED 9
 #define BUILT_IN_LED 13
@@ -14,7 +13,7 @@
 #define BURNOUT_TIME 3500
 #define APOGEE_TIME  17000
 
-#define SERVO_CLOSE 750
+#define SERVO_CLOSE 750 //TODO: see if this can be used elsewhere in the code, as there are references to 750 where this is not used
 #define SERVO_OPEN 2248
 
 using namespace nustars;
@@ -37,33 +36,31 @@ bool postBurnout = false;
 bool postApogee = false;
 
 
+Servo myservo; //NOTE: shouldn't need to be volatile as this is not a mutable class
+volatile int servoPos = 750;    //volatility required as per wiki for interrupt pin functions
 
-Servo myservo;
-int servoPos = 750;
+void setup() {
+    //increase speed of wire bus
+    Wire.setClock(400000L);
 
-void setup()
-{
-  //increase speed of wire bus
-  Wire.setClock(400000L);
+    //set pinmodes to outoput
+    pinMode(MISC_LED, OUTPUT);
+    pinMode(STATUS_LED, OUTPUT);
+    pinMode(ERROR_LED, OUTPUT);
+    pinMode(BUILT_IN_LED, OUTPUT);
+    //pinMode(38, OUTPUT);
 
-  //set pinmodes to outoput
-  pinMode(MISC_LED, OUTPUT);
-  pinMode(STATUS_LED, OUTPUT);
-  pinMode(ERROR_LED, OUTPUT);
-  pinMode(BUILT_IN_LED, OUTPUT);
-  //pinMode(38, OUTPUT);
+    //display that setup is beign enabled
+    digitalWrite(ERROR_LED, HIGH);
 
-  //display that setup is beign enabled
-  digitalWrite(ERROR_LED, HIGH);
+    //TODO: change to enable serial only if serial monitor detected
+    //configure serial monitor
+    Serial.begin(115200);
 
-  //TODO: change to enable serial only if serial monitor detected
-  //configure serial monitor
-  Serial.begin(115200);
+    myservo.attach(38);
 
-  myservo.attach(38);
-
-  myservo.writeMicroseconds(SERVO_CLOSE);
-/*
+    myservo.writeMicroseconds(SERVO_CLOSE);
+    /*
   while (servoPos < 1500) {
     servoPos = servoPos + 10;
     myservo.writeMicroseconds(servoPos);
@@ -80,167 +77,187 @@ void setup()
   delay(1000);
   */
 
-  //myservo.writeMicroseconds(SERVO_CLOSE);
+    //myservo.writeMicroseconds(SERVO_CLOSE);
 
-  /*
-
-
-  for (servoPos = 0; servoPos <= 20; servoPos += 1) // goes from 0 degrees to 180 degrees
-  { // in steps of 1 degree
-    myservo.write(servoPos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-  for (servoPos = 20; servoPos >= 0; servoPos -= 1) // goes from 180 degrees to 0 degrees
-  {
-    myservo.write(servoPos);
-    delay(15);// tell servo to go to position in variable 'pos'
-  }
-  */
-
-  accelerometer = new Accelerometer;
-  altimeter = new Altimeter;
-  storage = new Storage("out.csv");
-
-  char* msg = new char[500] {0};
-  msg = "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude";
-  storage -> write(msg);
-
-  //turn of misc led to show enabling is done
+    /*
 
 
+    for (servoPos = 0; servoPos <= 20; servoPos += 1) // goes from 0 degrees to 180 degrees
+    { // in steps of 1 degree
+      myservo.write(servoPos);              // tell servo to go to position in variable 'pos'
+      delay(15);                       // waits 15ms for the servo to reach the position
+    }
+    for (servoPos = 20; servoPos >= 0; servoPos -= 1) // goes from 180 degrees to 0 degrees
+    {
+      myservo.write(servoPos);
+      delay(15);// tell servo to go to position in variable 'pos'
+    }
+    */
 
-  digitalWrite(ERROR_LED, LOW);
-  //enable two interrupts for saving, data collecting and stuff
-  timer.begin(processLoop, 20000);
-  saveTimer.begin(saveLoop, 15000000);
+    accelerometer = new Accelerometer;
+    altimeter = new Altimeter;
+    storage = new Storage("out.csv");
 
-  //todo: read calibration data in from previous runs for accelerometers
+    char* msg = new char[500]{0};
+    msg = "time, x orientation, y orientation, z orientation, x accel, y accel, z accel, x gyro, y gyro, z gyro, pressure, altitude";
+    storage->write(msg);
 
+    delete msg; //I get it's only called once but plz delete ur stuff
+
+    //turn of misc led to show enabling is done
+
+    digitalWrite(ERROR_LED, LOW);
+    //enable two interrupts for saving, data collecting and stuff
+    timer.begin(processLoop, 20000);
+    saveTimer.begin(saveLoop, 15000000);
+
+    //todo: read calibration data in from previous runs for accelerometers
+
+    //assuming the pins are pulled normally high and also I forgot the specifics of the switches so this is general for now...
+    attachInterrupt(digitalPinToInterrupt(CLOSED_SERVO_PIN, interruptServoClosed, LOW);
+    attachInterrupt(digitalPinToInterrupt(OPEN_SERVO_PIN, interruptServoOpen, LOW);
 }
 
 //todo: check for verticalness of rocket and only start timer at that point.
 //todo: dont start save loop until flight start
-void loop()
-{
-
+void loop() {
+    //intentionally blank
 }
 
 void saveLoop() {
-  digitalWrite(ERROR_LED, HIGH);
-  storage->save();
-  digitalWrite(ERROR_LED, LOW);
+    digitalWrite(ERROR_LED, HIGH);
+    storage->save();
+    digitalWrite(ERROR_LED, LOW);
 }
 
 void processLoop() {
 
-  char* msg = new char[500] {0};
-  accelerometer->tick();
-  altimeter->tick();
+    char* msg = new char[500]{0};
+    accelerometer->tick();
+    altimeter->tick();
 
-  //check for BNO connection
-  Wire.beginTransmission(BNO055_ADDRESS_A);
-  Wire.send(0x00);
-  Wire.endTransmission();
-  Wire.requestFrom(BNO055_ADDRESS_A, (byte)1);
-  value = Wire.receive();
-
-
-  testBit = value;
+    //check for BNO connection
+    Wire.beginTransmission(BNO055_ADDRESS_A);
+    Wire.send(0x00);
+    Wire.endTransmission();
+    Wire.requestFrom(BNO055_ADDRESS_A, (byte)1);
+    value = Wire.receive();
 
 
+    testBit = value;
 
 
-  if (testBit != BNO055_ID) {
-    errorFlag = true;
-    accelerometer->reconnect();
-    storage->write("bno disconnected");
-  }
-
-
-
-
-  //Serial.println(testBit);
-
-  sprintf(msg, "%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0), accelerometer->getOrientation(1), accelerometer->getOrientation(2),
-          accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
-          accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
-          altimeter->getPressure(), altimeter->getAltitude());
-
-  //check for storage issue
-  if (!storage->write(msg)) {
-    errorFlag = true;
-    //storage = new Storage("out.csv");
-  }
-  //Serial.println(msg);
-
-
-  //set LED high if issue
-  if (errorFlag) {
-    digitalWrite(ERROR_LED, HIGH);
-    errorFlag = false;
-  }
-  else {
-    digitalWrite(ERROR_LED, LOW);
-  }
-
-  if (accelerometer->getAcceleration(2) < -28) {
-    inFlight = true;
-    flightTimestamp = millis();
-  }
-
-  if (!postApogee && inFlight && millis() - flightTimestamp > BURNOUT_TIME) {
-    postBurnout = true;
-    if (millis() - flightTimestamp > APOGEE_TIME) postApogee = true;
-  }
-
-  if (inFlight && postBurnout && !postApogee) {
-
-    if (servoPos < 1500) {
-      servoPos = servoPos + 10;
+    if (testBit != BNO055_ID) {
+        errorFlag = true;
+        accelerometer->reconnect();
+        storage->write("bno disconnected");
     }
 
-    //servoPos = SERVO_OPEN;
 
 
-  }
-  else {
 
+    //Serial.println(testBit);
+
+    sprintf(msg, "%d,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f", millis(), accelerometer->getOrientation(0),
+            accelerometer->getOrientation(1), accelerometer->getOrientation(2),
+            accelerometer->getAcceleration(0), accelerometer->getAcceleration(1), accelerometer->getAcceleration(2),
+            accelerometer->getGyro(0), accelerometer->getGyro(1), accelerometer->getGyro(2),
+            altimeter->getPressure(), altimeter->getAltitude());
+
+    //check for storage issue
+    if (!storage->write(msg)) {
+        errorFlag = true;
+        //storage = new Storage("out.csv");
+    }
+    //Serial.println(msg);
+
+
+    //set LED high if issue
+    if (errorFlag) {
+        digitalWrite(ERROR_LED, HIGH);
+        errorFlag = false;
+    } else {
+        digitalWrite(ERROR_LED, LOW);
+    }
+
+    if (accelerometer->getAcceleration(2) < -28) {
+        inFlight = true;
+        flightTimestamp = millis();
+    }
+
+    if (!postApogee && inFlight && millis() - flightTimestamp > BURNOUT_TIME) {
+        postBurnout = true;
+        if (millis() - flightTimestamp > APOGEE_TIME) postApogee = true;
+    }
+
+    if (inFlight && postBurnout && !postApogee) {
+
+        if (servoPos < 1500) {
+            servoPos = servoPos + 10;
+        }
+
+        //servoPos = SERVO_OPEN;
+
+
+    } else {
+
+
+        if (servoPos > 750) {
+            servoPos = servoPos - 10;
+        }
+
+        //servoPos = SERVO_CLOSE;
+
+    }
 
     if (servoPos > 750) {
-      servoPos = servoPos - 10;
+
+        myservo.writeMicroseconds(servoPos);
     }
 
-    //servoPos = SERVO_CLOSE;
+    if (millis() - flightTimestamp > APOGEE_TIME + 2000) {
+        myservo.detach();
+        digitalWrite(BUILT_IN_LED, postApogee);
+        pinMode(38, INPUT);
+    }
 
-  }
+    if (millis() - 1000 > timerCounter) {
+        timerCounter = millis();
+        digitalWrite(MISC_LED, !digitalRead(MISC_LED));
+        if (inFlight && postBurnout && !postApogee) {
+            digitalWrite(BUILT_IN_LED, !digitalRead(BUILT_IN_LED));
+        }
+    }
 
-if (servoPos > 750) {
-  
-  myservo.writeMicroseconds(servoPos);
+
+    digitalWrite(STATUS_LED, inFlight);
+
+    Serial.print(millis());
+    Serial.print(" ");
+    Serial.print(accelerometer->getAcceleration(2));
+    Serial.print(" ");
+    Serial.println(servoPos);
+
+    delete msg; //do not delete this line
+
 }
-if (millis()-flightTimestamp > APOGEE_TIME + 2000) {
-  myservo.detach();
-  digitalWrite(BUILT_IN_LED, postApogee);
-  pinMode(38, INPUT);
+
+
+/**
+ * When the servo is detected as being overextended, decrease the servo position time until it is resolved.
+ *
+ * This needs to be tested, and likely needs to be adjusted, as it is extremely likely that this function will vastly outpace the servo.
+ * More research is necessary, since normal timing operations don't work in interrupts as per the wiki.
+ */
+void interruptServoOpen() {
+    servoPos -= 10;
+    myservo.writeMicroseconds(servoPos);
 }
 
-  if (millis() - 1000 > timerCounter) {
-    timerCounter = millis();
-    digitalWrite(MISC_LED, !digitalRead(MISC_LED));
-    if (inFlight && postBurnout && !postApogee) {
-      digitalWrite(BUILT_IN_LED, !digitalRead(BUILT_IN_LED));
-    }      
-  }
-
-
-  digitalWrite(STATUS_LED, inFlight);
-
-  Serial.print(millis());
-  Serial.print(" ");
-  Serial.print(accelerometer -> getAcceleration(2));
-  Serial.print(" ");
-  Serial.println(servoPos);
-
-  delete msg;
-
+/**
+ * When the servo is detected as being underextended, increase the servo position time until it is resolved.
+ */
+void interruptServoClosed() {
+    servoPos += 10;
+    myservo.writeMicroseconds(servoPos);
 }
